@@ -19,7 +19,7 @@ export const routers = createBrowserRouter([
         element: <Home />,
       },
       // ***caution
-      // defining every pathname including  "-" sign ... because they will be dynamic
+      // defining every pathname including  "-" sign. Because they will be dynamic
       {
         path: "/nine-ten",
 
@@ -54,5 +54,9 @@ export const routers = createBrowserRouter([
         element: <ElevenTwelveMath />,
       },
     ],
+  },
+  {
+    path: "/admin",
+    element: "admin",
   },
 ]);
