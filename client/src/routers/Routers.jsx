@@ -9,6 +9,7 @@ import NineTenMath from "../pages/NineTenPage/NineTenMath";
 import ElevenTwelvePhysics from "../pages/ElevenTwelvePage/ElevenTwelvePhysics";
 import ElevenTwelveChemistry from "../pages/ElevenTwelvePage/ElevenTwelveChemistry";
 import ElevenTwelveMath from "../pages/ElevenTwelvePage/ElevenTwelveMath";
+import SingleQuizPage from "../components/shared/SingleQuizPage";
 export const routers = createBrowserRouter([
   {
     path: "/",
@@ -53,8 +54,13 @@ export const routers = createBrowserRouter([
         path: "/eleven-twelve-math",
         element: <ElevenTwelveMath />,
       },
+      {
+        path: "/quiz/:id",
+        element: <SingleQuizPage />,
+      },
     ],
   },
+
   {
     path: "/admin",
     element: "admin",

@@ -8,10 +8,10 @@ const useGetQuizzes = (classIs, subject) => {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["quizzes"],
+    queryKey: ["quizzes", classIs, subject],
     queryFn: async () => {
       const response = await axiosCommon(
-        `/quizzes?class=${classIs}&subject=${subject}`
+        `/quizzes?classIs=${classIs}&subject=${subject}`
       );
       return response.data;
     },
