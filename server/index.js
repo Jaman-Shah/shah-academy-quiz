@@ -32,15 +32,34 @@ async function run() {
 
     const quizCollection = client
       .db("shah_academy_quizDB")
-      .collection("quizes");
+      .collection("quizzes");
 
-    app.get("/quizes", async (req, res) => {
-      const cursor = quizCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
+    // getting all quizzes and subject and class based quizzes
+    app.get("/quizzes", async (req, res) => {
+      console.log(req.query);
+      if (req.query) {
+        const result = await quizCollection
+          .find({
+            class: req.query.class,
+            subject: req.query.subject,
+          })
+          .sort({ _id: -1 })
+          .toArray();
+        return res.send(result);
+      } else {
+        const result = await quizCollection.find().toArray();
+        res.send(result);
+      }
     });
 
-    // getting single user
+    // getting single quiz with id
+
+    app.get("/quizzes/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const quiz = await quizCollection.findOne(query);
+      res.send(quiz);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
