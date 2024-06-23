@@ -30,17 +30,19 @@ async function run() {
     //to use into vercel this code should not be used
     // await client.connect();
 
-    const quizCollection = client
-      .db("shah_academy_quizDB")
-      .collection("quizzes");
+    // all collections are :
+
+    const db = client.db("shah_academy_quizDB");
+
+    const quizCollection = db.collection("quizzes");
+    const attendanceCollection = db.collection("attendance");
 
     // getting all quizzes and subject and class based quizzes
     app.get("/quizzes", async (req, res) => {
-      console.log(req.query);
       if (req.query) {
         const result = await quizCollection
           .find({
-            class: req.query.class,
+            classIs: req.query.classIs,
             subject: req.query.subject,
           })
           .sort({ _id: -1 })
@@ -55,10 +57,61 @@ async function run() {
     // getting single quiz with id
 
     app.get("/quizzes/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
+      const query = { _id: new ObjectId(req.params.id) };
       const quiz = await quizCollection.findOne(query);
       res.send(quiz);
+    });
+
+    // creating  single attendance of a quiz
+
+    app.post("/attendance", async (req, res) => {
+      const { email, quiz_id } = req.query;
+
+      // checking the user is already attended the quiz
+
+      const alreadyAttended = await attendanceCollection
+        .find({
+          quiz_id,
+          attended_by: email,
+        })
+        .toArray();
+      if (alreadyAttended.length > 0)
+        return res.send({ message: "You Already Attended this quiz" });
+      const quiz_attendance = req.body;
+      const result = await attendanceCollection.insertOne(quiz_attendance);
+      res.send(result);
+    });
+
+    // getting attendances of a user of quizzes
+
+    app.get("/attendance", async (req, res) => {
+      const { email, quiz_id } = req.query;
+      const result = await attendanceCollection.findOne({
+        attended_by: email,
+        quiz_id,
+      });
+
+      res.send(result);
+    });
+
+    // getting attendances of a user by email
+
+    app.get("/attendance/email/:email", async (req, res) => {
+      console.log(req.params.email);
+      const result = await attendanceCollection
+        .find({
+          attended_by: req.params.email,
+        })
+        .toArray();
+      res.send(result);
+    });
+
+    // getting single attendance by id
+
+    app.get("/attendance/id/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const result = await attendanceCollection.findOne(query);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
