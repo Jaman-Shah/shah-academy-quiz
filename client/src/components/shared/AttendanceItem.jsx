@@ -4,8 +4,8 @@ const AttendanceItem = ({ answer }) => {
   const { number, question, answered, correct, options } = answer;
 
   return (
-    <div>
-      <div className="bg-green-400 p-4 mb-2">
+    <div className="p-3">
+      <div className="font-normal text-2xl p-4 mb-2">
         {number}. {question}
       </div>
       <div className="grid grid-cols-2 gap-2">

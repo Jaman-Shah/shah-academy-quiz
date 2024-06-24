@@ -77,12 +77,28 @@ const SingleQuizPage = () => {
     }
   };
 
+  // counting correct answers
+  let correctCount = 0;
+  if (attendance && attendance.answers) {
+    correctCount = attendance.answers.reduce(
+      (count, answer) => count + (answer.result ? 1 : 0),
+      0
+    );
+  }
+  const totalQuestions = attendance?.answers?.length || quizzes?.length || 0;
   return (
     <div>
-      <div>
-        <h1>Start Answering {title}</h1>
-      </div>
       <div className="grid grid-cols-1 gap-4">
+        {attendance && (
+          <div className="flex flex-col items-center justify-center ">
+            <div>
+              <h1 className="font-bold text-3xl mb-4">Your Score</h1>
+            </div>
+            <div className="h-32 w-32 bg-orange-500 rounded-full border-2 text-4xl text-white border-black flex justify-center items-center">
+              {`${correctCount}/${totalQuestions}`}
+            </div>
+          </div>
+        )}
         {attendance && attendance.answers && attendance.answers.length > 0
           ? attendance.answers.map((answer) => (
               <AttendanceItem key={answer.number} answer={answer} />
@@ -98,12 +114,14 @@ const SingleQuizPage = () => {
             ))}
       </div>
       <div className="text-center">
-        <button
-          onClick={handleSubmitAnswers}
-          className="border p-2 bg-green-300 mt-4"
-        >
-          Submit
-        </button>
+        {!attendance && (
+          <button
+            onClick={handleSubmitAnswers}
+            className="border p-2 bg-green-300 mt-4"
+          >
+            Submit
+          </button>
+        )}
       </div>
     </div>
   );

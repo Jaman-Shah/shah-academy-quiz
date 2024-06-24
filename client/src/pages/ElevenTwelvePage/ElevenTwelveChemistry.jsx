@@ -5,7 +5,6 @@ import QuizNameCard from "../../components/shared/QuizNameCard";
 const ElevenTwelveChemistry = () => {
   const { quizzes } = useGetQuizzes("eleven_twelve", "chemistry");
 
-  console.log(quizzes);
   return (
     <div className="grid grid-cols-1 gap-4">
       {quizzes &&
