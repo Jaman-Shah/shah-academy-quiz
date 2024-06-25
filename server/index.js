@@ -54,6 +54,13 @@ async function run() {
       }
     });
 
+    // creating a quiz
+
+    app.post("/quizzes", async (req, res) => {
+      const result = quizCollection.insertOne(req.body);
+      res.send(result);
+    });
+
     // getting single quiz with id
 
     app.get("/quizzes/:id", async (req, res) => {
