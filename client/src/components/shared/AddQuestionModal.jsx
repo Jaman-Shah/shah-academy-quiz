@@ -51,7 +51,6 @@ const AddQuestionModal = ({
   };
 
   // deleting single quiz item functionalities
-
   const deleteSingleQuiz = (quiz) => {
     const filteredQuiz = quizzes.filter((quizItem) => quizItem !== quiz);
     setQuizzes(filteredQuiz);

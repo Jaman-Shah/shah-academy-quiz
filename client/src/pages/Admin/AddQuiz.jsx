@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import AddQuestionModal from "../../components/shared/AddQuestionModal";
+import useAxiosCommon from "./../../hooks/useAxiosCommon";
 
 const AddQuiz = () => {
-  // quizzes state
+  const axiosCommon = useAxiosCommon();
 
+  // quizzes state
   const [quizzes, setQuizzes] = useState([]);
 
   // modal open state
@@ -11,13 +13,23 @@ const AddQuiz = () => {
   // form submission functionalities
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (quizzes.length < 3) {
+      return alert("Insert at least 2 questions");
+    }
     const form = e.target;
     const classIs = form.classIs.value;
     const subject = form.subject.value;
     const paper = ` ${form.paper.value === 1 ? "1st" : "2nd"}`;
     const chapter_name = form.chapter_name.value;
     const chapter = parseInt(form.chapter.value);
-    console.log(classIs, subject, paper, chapter_name, chapter);
+    const quiz = { classIs, subject, paper, chapter_name, chapter, quizzes };
+
+    try {
+      const response = await axiosCommon.post(`/quizzes`, quiz);
+      console.log(response);
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   // adding questions modal opening function
@@ -136,7 +148,10 @@ const AddQuiz = () => {
               id="addQuestions"
               className="shadow cursor-pointer appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
-              +
+              <h1>
+                ({quizzes.length}){" "}
+                {quizzes.length < 2 ? "Question" : "Questions"}
+              </h1>
             </div>
           </div>
         </div>

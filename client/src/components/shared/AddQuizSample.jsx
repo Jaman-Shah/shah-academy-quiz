@@ -11,7 +11,7 @@ const AddQuizSample = ({ quiz, deleteSingleQuiz }) => {
         {options &&
           options.map((option, index) => {
             return (
-              <div>
+              <div key={index}>
                 <h1>
                   <span>{index + 1}</span>.{option}
                 </h1>
