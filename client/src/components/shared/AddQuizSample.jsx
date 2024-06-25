@@ -1,6 +1,6 @@
 import React from "react";
 
-const AddQuizSample = ({ quiz }) => {
+const AddQuizSample = ({ quiz, deleteSingleQuiz }) => {
   const { number, question, options, answer } = quiz;
   return (
     <div className="border-b-2 border-black mb-2 relative">
@@ -22,7 +22,10 @@ const AddQuizSample = ({ quiz }) => {
       <div>
         <h1>Answer is :{answer}</h1>
       </div>
-      <button className="absolute border-2 border-black top-1/2 rounded-full p-1 right-0">
+      <button
+        onClick={() => deleteSingleQuiz(quiz)}
+        className="absolute border-2 border-black top-1/2 rounded-full p-1 right-0"
+      >
         Delete
       </button>
     </div>

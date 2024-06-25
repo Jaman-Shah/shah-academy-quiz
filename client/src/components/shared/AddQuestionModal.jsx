@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Dialog, DialogPanel } from "@headlessui/react";
+import { Dialog, DialogPanel } from "@headlessui/react";
 import AddQuizSample from "./AddQuizSample";
 
 const AddQuestionModal = ({
@@ -23,9 +23,9 @@ const AddQuestionModal = ({
     }));
   };
 
+  // quiz adding to the state functionalities
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const form = e.target;
     const question = form.question.value;
     const options = [
@@ -48,6 +48,13 @@ const AddQuestionModal = ({
     ]);
 
     // setIsModalOpen(false);
+  };
+
+  // deleting single quiz item functionalities
+
+  const deleteSingleQuiz = (quiz) => {
+    const filteredQuiz = quizzes.filter((quizItem) => quizItem !== quiz);
+    setQuizzes(filteredQuiz);
   };
 
   return (
@@ -184,13 +191,19 @@ const AddQuestionModal = ({
                 </div>
                 <div className="mt-4">
                   <button className="inline-flex items-center gap-2 rounded-md bg-gray-700 py-1.5 px-3 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-600 data-[focus]:outline-1 data-[focus]:outline-white data-[open]:bg-gray-700">
-                    Submit
+                    Add
                   </button>
                 </div>
               </form>
               {quizzes &&
                 quizzes.map((quiz) => {
-                  return <AddQuizSample key={quiz.number} quiz={quiz} />;
+                  return (
+                    <AddQuizSample
+                      key={quiz.number}
+                      quiz={quiz}
+                      deleteSingleQuiz={deleteSingleQuiz}
+                    />
+                  );
                 })}
             </DialogPanel>
           </div>
