@@ -3,7 +3,7 @@ import useGetQuizzes from "../../hooks/useGetQuizzes";
 import QuizNameCard from "../../components/shared/QuizNameCard";
 
 const ElevenTwelveChemistry = () => {
-  const { quizzes } = useGetQuizzes("eleven_twelve", "chemistry");
+  const { quizzes } = useGetQuizzes("Eleven - Twelve", "chemistry");
 
   return (
     <div className="grid grid-cols-1 gap-4">

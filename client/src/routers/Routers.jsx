@@ -10,6 +10,9 @@ import ElevenTwelvePhysics from "../pages/ElevenTwelvePage/ElevenTwelvePhysics";
 import ElevenTwelveChemistry from "../pages/ElevenTwelvePage/ElevenTwelveChemistry";
 import ElevenTwelveMath from "../pages/ElevenTwelvePage/ElevenTwelveMath";
 import SingleQuizPage from "../components/shared/SingleQuizPage";
+import AdminMain from "../pages/Admin/AdminMain";
+import AdminNavbar from "../pages/Admin/AdminNavbar";
+import AddQuiz from "../pages/Admin/AddQuiz";
 export const routers = createBrowserRouter([
   {
     path: "/",
@@ -63,6 +66,12 @@ export const routers = createBrowserRouter([
 
   {
     path: "/admin",
-    element: "admin",
+    element: <AdminMain />,
+    children: [
+      {
+        path: "",
+        element: <AddQuiz />,
+      },
+    ],
   },
 ]);
