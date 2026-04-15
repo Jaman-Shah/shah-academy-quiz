@@ -1,18 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import useAxiosCommon from "./useAxiosCommon";
+import useAuth from "./useAuth";
+import useAxiosSecure from "./useAxiosSecure";
 
-const useGetAttendance = (email, quiz_id) => {
-  const axiosCommon = useAxiosCommon();
+const useGetAttendance = (quiz_id) => {
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const {
-    data: attendance = {},
+    data: attendance = null,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["attendance", email, quiz_id],
+    queryKey: ["attendance", user?.uid, quiz_id],
+    enabled: Boolean(user && quiz_id),
     queryFn: async () => {
-      const response = await axiosCommon(
-        `/attendance?email=${email}&quiz_id=${quiz_id}`
-      );
+      const response = await axiosSecure(`/attendance?quiz_id=${quiz_id}`);
       return response.data;
     },
   });

@@ -22,13 +22,34 @@ const containerVariants = {
 const Home = () => {
   return (
     <motion.div
-      className="flex flex-col gap-6 items-center justify-center"
+      className="space-y-8"
       variants={containerVariants}
       initial="initial"
       animate="animate"
     >
-      <PageNavigateBtn address="/nine-ten" name="Nine - Ten" />
-      <PageNavigateBtn address="/eleven-twelve" name="Eleven - Twelve" />
+      <div className="page-header">
+        <span className="page-kicker">Shah Academy</span>
+        <h2 className="page-title">Choose your class and train with purpose.</h2>
+        <p className="page-subtitle">
+          Move into the right level, browse subjects, and keep your quiz practice
+          clean, fast, and motivating from the first click.
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <PageNavigateBtn
+          address="/nine-ten"
+          name="Nine - Ten"
+          tag="School Level"
+          subtitle="Physics, chemistry, and math sets designed for class nine and ten learners."
+        />
+        <PageNavigateBtn
+          address="/eleven-twelve"
+          name="Eleven - Twelve"
+          tag="College Level"
+          subtitle="Go deeper with higher-level practice built for class eleven and twelve preparation."
+        />
+      </div>
     </motion.div>
   );
 };

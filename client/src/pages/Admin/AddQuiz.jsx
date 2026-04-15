@@ -1,61 +1,72 @@
 import React, { useState } from "react";
 import AddQuestionModal from "../../components/shared/AddQuestionModal";
-import useAxiosCommon from "./../../hooks/useAxiosCommon";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const AddQuiz = () => {
-  const axiosCommon = useAxiosCommon();
-
-  // quizzes state
+  const axiosSecure = useAxiosSecure();
   const [quizzes, setQuizzes] = useState([]);
-
-  // modal open state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // form submission functionalities
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+  const [message, setMessage] = useState("");
+
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+
     if (quizzes.length < 3) {
-      return alert("Insert at least 2 questions");
+      return alert("Insert at least 3 questions");
     }
-    const form = e.target;
+
+    const form = event.target;
     const classIs = form.classIs.value;
     const subject = form.subject.value;
-    const paper = ` ${form.paper.value === 1 ? "1st" : "2nd"}`;
+    const paper = ` ${Number(form.paper.value) === 1 ? "1st" : "2nd"}`;
     const chapter_name = form.chapter_name.value;
     const chapter = parseInt(form.chapter.value);
     const quiz = { classIs, subject, paper, chapter_name, chapter, quizzes };
 
     try {
-      const response = await axiosCommon.post(`/quizzes`, quiz);
-      console.log(response);
+      await axiosSecure.post(`/quizzes`, quiz);
+      setMessage("Quiz added successfully.");
+      setQuizzes([]);
+      form.reset();
     } catch (error) {
-      console.log(error.message);
+      setMessage(error.response?.data?.message || error.message);
     }
   };
-
-  // adding questions modal opening function
 
   const modalOpen = () => {
     setIsModalOpen(true);
   };
 
   return (
-    <div className="max-w-full mx-auto p-4">
+    <div className="mx-auto max-w-5xl">
+      {message && (
+        <p className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center font-semibold">
+          {message}
+        </p>
+      )}
+
       <form
         onSubmit={handleFormSubmit}
-        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+        className="surface-card p-6 md:p-8"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="page-header max-w-3xl">
+          <span className="page-kicker">Admin Studio</span>
+          <h1 className="page-title">Craft a new quiz set.</h1>
+          <p className="page-subtitle">
+            Build chapter-wise assessments with a stronger layout and clearer control
+            over your question stack.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="classIs"
-            >
+            <label className="label-text" htmlFor="classIs">
               Class
             </label>
             <select
               id="classIs"
               name="classIs"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="input-field"
               defaultValue=""
               required
             >
@@ -66,17 +77,15 @@ const AddQuiz = () => {
               <option value="Eleven - Twelve">Eleven - Twelve</option>
             </select>
           </div>
+
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="classIs"
-            >
+            <label className="label-text" htmlFor="subject">
               Subject
             </label>
             <select
               id="subject"
               name="subject"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="input-field"
               defaultValue=""
               required
             >
@@ -88,11 +97,9 @@ const AddQuiz = () => {
               <option value="math">Math</option>
             </select>
           </div>
+
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="paper"
-            >
+            <label className="label-text" htmlFor="paper">
               Paper
             </label>
             <input
@@ -100,15 +107,13 @@ const AddQuiz = () => {
               id="paper"
               name="paper"
               placeholder="Paper"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="input-field"
               required
             />
           </div>
+
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="chapter_name"
-            >
+            <label className="label-text" htmlFor="chapter_name">
               Chapter Name
             </label>
             <input
@@ -116,15 +121,13 @@ const AddQuiz = () => {
               id="chapter_name"
               name="chapter_name"
               placeholder="Chapter Name"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="input-field"
               required
             />
           </div>
+
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="chapter"
-            >
+            <label className="label-text" htmlFor="chapter">
               Chapter
             </label>
             <input
@@ -132,38 +135,34 @@ const AddQuiz = () => {
               id="chapter"
               name="chapter"
               placeholder="Chapter"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="input-field"
               required
             />
           </div>
+
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="addQuestions"
-            >
+            <label className="label-text" htmlFor="addQuestions">
               Add questions
             </label>
             <div
               onClick={modalOpen}
               id="addQuestions"
-              className="shadow cursor-pointer appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="input-field cursor-pointer"
             >
               <h1>
-                ({quizzes.length}){" "}
-                {quizzes.length < 2 ? "Question" : "Questions"}
+                ({quizzes.length}) {quizzes.length < 2 ? "Question" : "Questions"}
               </h1>
             </div>
           </div>
         </div>
+
         <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
+          <button type="submit" className="btn-primary">
             Add This Quiz
           </button>
         </div>
       </form>
+
       <AddQuestionModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}

@@ -13,7 +13,7 @@ const useGetQuizzes = (classIs, subject) => {
       const response = await axiosCommon(
         `/quizzes?classIs=${classIs}&subject=${subject}`
       );
-      return response.data;
+      return Array.isArray(response.data) ? response.data : [];
     },
   });
   return { quizzes, isLoading, refetch };

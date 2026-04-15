@@ -10,9 +10,16 @@ import ElevenTwelvePhysics from "../pages/ElevenTwelvePage/ElevenTwelvePhysics";
 import ElevenTwelveChemistry from "../pages/ElevenTwelvePage/ElevenTwelveChemistry";
 import ElevenTwelveMath from "../pages/ElevenTwelvePage/ElevenTwelveMath";
 import SingleQuizPage from "../components/shared/SingleQuizPage";
+import PrivateRoute from "../components/shared/PrivateRoute";
+import AdminRoute from "../components/shared/AdminRoute";
 import AdminMain from "../pages/Admin/AdminMain";
-import AdminNavbar from "../pages/Admin/AdminNavbar";
 import AddQuiz from "../pages/Admin/AddQuiz";
+import ManageUsers from "../pages/Admin/ManageUsers";
+import ManageQuizzes from "../pages/Admin/ManageQuizzes";
+import Login from "../pages/Auth/Login";
+import Register from "../pages/Auth/Register";
+import Profile from "../pages/Auth/Profile";
+
 export const routers = createBrowserRouter([
   {
     path: "/",
@@ -22,11 +29,8 @@ export const routers = createBrowserRouter([
         path: "/",
         element: <Home />,
       },
-      // ***caution
-      // defining every pathname including  "-" sign. Because they will be dynamic
       {
         path: "/nine-ten",
-
         element: <NineTenPage />,
       },
       {
@@ -58,19 +62,50 @@ export const routers = createBrowserRouter([
         element: <ElevenTwelveMath />,
       },
       {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
+      },
+      {
+        path: "/profile",
+        element: (
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        ),
+      },
+      {
         path: "/quiz/:id",
-        element: <SingleQuizPage />,
+        element: (
+          <PrivateRoute>
+            <SingleQuizPage />
+          </PrivateRoute>
+        ),
       },
     ],
   },
-
   {
     path: "/admin",
-    element: <AdminMain />,
+    element: (
+      <AdminRoute>
+        <AdminMain />
+      </AdminRoute>
+    ),
     children: [
       {
         path: "",
         element: <AddQuiz />,
+      },
+      {
+        path: "quizzes",
+        element: <ManageQuizzes />,
+      },
+      {
+        path: "users",
+        element: <ManageUsers />,
       },
     ],
   },

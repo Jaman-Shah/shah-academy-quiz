@@ -1,14 +1,93 @@
-/* outfit font importing form font.google */
-/* @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap"); */
-
-/* nunito font  */
-@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #f8f5ee;
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --line: rgba(15, 23, 42, 0.08);
+  --panel: rgba(255, 255, 255, 0.74);
+  --panel-strong: rgba(255, 255, 255, 0.9);
+  --brand: #c65d3b;
+  --brand-deep: #8f3f24;
+  --gold: #f3b64c;
+  --teal: #127b76;
+  --sky: #7dd3fc;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  /* font-family: "Outfit", sans-serif; */
-  font-family: "Nunito", sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  font-family: "Sora", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(243, 182, 76, 0.36), transparent 28%),
+    radial-gradient(circle at top right, rgba(125, 211, 252, 0.3), transparent 24%),
+    radial-gradient(circle at bottom left, rgba(18, 123, 118, 0.18), transparent 22%),
+    linear-gradient(180deg, #fff8ec 0%, #f7f5ef 42%, #eef4f6 100%);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(198, 93, 59, 0.22);
+}
+
+@layer components {
+  .surface-card {
+    @apply rounded-[2rem] border border-white/60 bg-white/75 shadow-[0_20px_60px_rgba(15,23,42,0.12)] backdrop-blur-xl;
+  }
+
+  .surface-card-soft {
+    @apply rounded-[1.5rem] border border-slate-200/70 bg-white/80 shadow-[0_14px_40px_rgba(15,23,42,0.08)] backdrop-blur;
+  }
+
+  .page-header {
+    @apply mx-auto max-w-3xl text-center;
+  }
+
+  .page-kicker {
+    @apply inline-flex rounded-full border border-white/70 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500 shadow-sm;
+  }
+
+  .page-title {
+    @apply mt-5 text-4xl font-extrabold tracking-tight text-slate-900 md:text-5xl;
+  }
+
+  .page-subtitle {
+    @apply mt-4 text-sm leading-7 text-slate-600 md:text-base;
+  }
+
+  .input-field {
+    @apply w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition duration-200 placeholder:text-slate-400 focus:border-orange-300 focus:ring-4 focus:ring-orange-100;
+  }
+
+  .btn-primary {
+    @apply rounded-2xl bg-slate-900 px-6 py-3 font-semibold text-white shadow-lg shadow-slate-900/20 transition duration-200 hover:-translate-y-0.5 hover:bg-slate-800;
+  }
+
+  .btn-secondary {
+    @apply rounded-2xl border border-slate-200 bg-white/85 px-6 py-3 font-semibold text-slate-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:bg-orange-50;
+  }
+
+  .info-chip {
+    @apply inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-700;
+  }
+
+  .label-text {
+    @apply mb-2 block text-sm font-semibold uppercase tracking-[0.16em] text-slate-500;
+  }
+}
 }

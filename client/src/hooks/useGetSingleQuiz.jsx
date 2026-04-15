@@ -9,6 +9,7 @@ const useGetSingleQuiz = (id) => {
     refetch,
   } = useQuery({
     queryKey: ["quiz", id],
+    enabled: Boolean(id),
     queryFn: async () => {
       const response = await axiosCommon(`/quizzes/${id}`);
       return response.data;

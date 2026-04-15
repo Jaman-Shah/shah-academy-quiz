@@ -25,11 +25,37 @@ const NineTenPage = () => {
       variants={containerVariants}
       initial="initial"
       animate="animate"
-      className="flex flex-col justify-center items-center gap-4"
+      className="space-y-8"
     >
-      <PageNavigateBtn address="/nine-ten-physics" name="Physics" />
-      <PageNavigateBtn address="/nine-ten-chemistry" name="Chemistry" />
-      <PageNavigateBtn address="/nine-ten-math" name="Math" />
+      <div className="page-header">
+        <span className="page-kicker">Nine - Ten</span>
+        <h2 className="page-title">Build strong fundamentals, one subject at a time.</h2>
+        <p className="page-subtitle">
+          Choose a subject to unlock focused chapter-based quizzes and keep your
+          school preparation consistent.
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <PageNavigateBtn
+          address="/nine-ten-physics"
+          name="Physics"
+          tag="Subject"
+          subtitle="Core concepts, formulas, and problem-solving practice."
+        />
+        <PageNavigateBtn
+          address="/nine-ten-chemistry"
+          name="Chemistry"
+          tag="Subject"
+          subtitle="Chapter-wise MCQs for reactions, theory, and precision."
+        />
+        <PageNavigateBtn
+          address="/nine-ten-math"
+          name="Math"
+          tag="Subject"
+          subtitle="Sharpen logic, speed, and accuracy with guided practice."
+        />
+      </div>
     </motion.div>
   );
 };

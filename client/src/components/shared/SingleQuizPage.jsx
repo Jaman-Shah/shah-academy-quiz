@@ -1,110 +1,112 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useGetSingleQuiz from "../../hooks/useGetSingleQuiz";
-import QuizItem from "./QuizItem";
-import useAxiosCommon from "../../hooks/useAxiosCommon";
 import useGetAttendance from "../../hooks/useGetAttendance";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAuth from "../../hooks/useAuth";
+import QuizItem from "./QuizItem";
 import AttendanceItem from "./AttendanceItem";
+import Loading from "./Loading";
 
 const SingleQuizPage = () => {
   const { id } = useParams();
-  const { quiz } = useGetSingleQuiz(id);
-
-  // Destructuring the properties of quiz
-  const { _id, title, quizzes } = quiz || {}; // Adding a default empty object to avoid destructuring undefined
-
-  // Getting and setting default answers initially to state
+  const { quiz, isLoading: quizLoading } = useGetSingleQuiz(id);
+  const { dbUser } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const [answers, setAnswers] = useState([]);
 
-  const email = "jamanshah5400@gmail.com";
+  const { _id, quizzes } = quiz || {};
+  const { attendance, refetch, isLoading: attendanceLoading } =
+    useGetAttendance(_id);
 
-  const axiosCommon = useAxiosCommon();
-
-  // Initializing the answers state with default values
   useEffect(() => {
-    if (quizzes) {
-      const initialAnswers = quizzes.map((quiz) => ({
-        question: quiz.question,
-        number: quiz.number,
-        result: false,
-        answered: "not answered",
-        correct: quiz.answer,
-        options: quiz.options,
-      }));
-      setAnswers(initialAnswers);
+    if (!Array.isArray(quizzes)) {
+      setAnswers([]);
+      return;
     }
+
+    const initialAnswers = quizzes.map((quizItem) => ({
+      question: quizItem.question,
+      number: quizItem.number,
+      result: false,
+      answered: "not answered",
+      correct: quizItem.answer,
+      options: quizItem.options,
+    }));
+
+    setAnswers(initialAnswers);
   }, [quizzes]);
 
-  console.log("answers are", answers);
-
-  // Checking the wrong and right answers and making final result
   const finalResult = answers.map((element) => {
     const correspondingQuiz = quizzes?.find(
-      (quiz) => quiz.number === element.number
+      (quizItem) => quizItem.number === element.number
     );
-    const result =
+    const isCorrect =
       correspondingQuiz &&
       element.answered.toLowerCase() === correspondingQuiz.answer.toLowerCase();
+
     return {
       ...element,
-      result: result || false,
+      result: isCorrect || false,
       correct: correspondingQuiz ? correspondingQuiz.answer : "not answered",
     };
   });
 
-  console.log("final result is", finalResult);
-
-  // Getting attendance of a user
-  const { attendance, refetch, isLoading } = useGetAttendance(email, _id);
-
-  console.log("attendance is object:", typeof attendance === "object");
-
   const handleSubmitAnswers = async () => {
-    const quiz_attendance = {
-      attended_by: email,
-      quiz_id: _id,
-      answers: finalResult,
-    };
     try {
-      const response = await axiosCommon.post(
-        `/attendance?email=${email}&quiz_id=${_id}`,
-        quiz_attendance
-      );
-      console.log(response.data);
-      refetch(); // Refetching attendance from server
+      await axiosSecure.post(`/attendance?quiz_id=${_id}`, {
+        answers: finalResult,
+      });
+      refetch();
     } catch (error) {
-      console.log(error.message);
+      alert(error.response?.data?.message || error.message);
     }
   };
 
-  // counting correct answers
   let correctCount = 0;
-  if (attendance && attendance.answers) {
+  if (attendance?.answers) {
     correctCount = attendance.answers.reduce(
       (count, answer) => count + (answer.result ? 1 : 0),
       0
     );
   }
+
   const totalQuestions = attendance?.answers?.length || quizzes?.length || 0;
+
+  if (quizLoading || attendanceLoading) {
+    return <Loading />;
+  }
+
+  if (dbUser?.status === "inactive") {
+    return (
+      <div className="mx-auto max-w-2xl rounded-3xl border border-red-300 bg-red-50 p-6 text-center">
+        <h1 className="text-2xl font-bold text-red-700">Account Inactive</h1>
+        <p className="mt-2 text-gray-700">
+          Your account is inactive. Contact an admin before attending quizzes.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="grid grid-cols-1 gap-4">
         {attendance && (
-          <div className="flex flex-col items-center justify-center ">
+          <div className="flex flex-col items-center justify-center">
             <div>
-              <h1 className="font-bold text-3xl mb-4">Your Score</h1>
+              <h1 className="mb-4 text-3xl font-bold">Your Score</h1>
             </div>
-            <div className="h-32 w-32 bg-orange-500 rounded-full border-2 text-4xl text-white border-black flex justify-center items-center">
+            <div className="flex h-32 w-32 items-center justify-center rounded-full border-2 border-black bg-orange-500 text-4xl text-white">
               {`${correctCount}/${totalQuestions}`}
             </div>
           </div>
         )}
-        {attendance && attendance.answers && attendance.answers.length > 0
+
+        {attendance?.answers?.length > 0
           ? attendance.answers.map((answer) => (
               <AttendanceItem key={answer.number} answer={answer} />
             ))
-          : quizzes &&
-            quizzes.map((quizItem) => (
+          : quizzes?.map((quizItem) => (
               <QuizItem
                 key={quizItem.number}
                 quizItem={quizItem}
@@ -113,11 +115,13 @@ const SingleQuizPage = () => {
               />
             ))}
       </div>
+
       <div className="text-center">
         {!attendance && (
           <button
             onClick={handleSubmitAnswers}
-            className="border p-2 bg-green-300 mt-4"
+            className="mt-4 border bg-green-300 p-2"
+            disabled={!answers.length}
           >
             Submit
           </button>
