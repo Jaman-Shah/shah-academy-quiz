@@ -1,5 +1,3 @@
-import React from "react";
-
 const AttendanceItem = ({ answer }) => {
   const { number, question, answered, correct, options } = answer;
   const isCorrect = answered === correct;

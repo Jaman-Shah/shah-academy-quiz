@@ -1,4 +1,3 @@
-import React from "react";
 import useGetQuizzes from "../../hooks/useGetQuizzes";
 import QuizNameCard from "../../components/shared/QuizNameCard";
 import CompanyDetails from "../../components/shared/CompanyDetails";

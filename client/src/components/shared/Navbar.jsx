@@ -1,4 +1,4 @@
-import React from "react";
+
 import { motion } from "framer-motion";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";

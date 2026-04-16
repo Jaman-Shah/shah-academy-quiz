@@ -1,4 +1,3 @@
-import React from "react";
 import PageNavigateBtn from "../../components/shared/PageNavigateBtn";
 import { motion } from "framer-motion";
 import CompanyDetails from "../../components/shared/CompanyDetails";

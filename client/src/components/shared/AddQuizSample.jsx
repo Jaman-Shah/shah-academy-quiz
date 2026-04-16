@@ -1,5 +1,3 @@
-import React from "react";
-
 const AddQuizSample = ({ quiz, deleteSingleQuiz, editSingleQuiz }) => {
   const { number, question, options, answer } = quiz;
 

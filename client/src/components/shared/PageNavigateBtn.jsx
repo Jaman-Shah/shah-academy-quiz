@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import {
   HiOutlineAcademicCap,
@@ -44,7 +43,6 @@ const getCardStyle = (name, address) => {
 const PageNavigateBtn = ({
   address,
   name,
-  subtitle,
   tag,
   disabled = false,
   fallbackAddress = "/login",

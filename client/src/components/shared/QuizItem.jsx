@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const QuizItem = ({ quizItem, answers, setAnswers }) => {
   const { number, question, options } = quizItem;
