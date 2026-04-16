@@ -7,14 +7,44 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
-const clientOrigins = (process.env.CLIENT_URLS || "http://localhost:5173")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const normalizeOrigin = (origin) =>
+  String(origin || "")
+    .trim()
+    .replace(/\/+$/, "");
+
+const defaultClientOrigins = [
+  "http://localhost:5173",
+  "https://shahacademy.vercel.app",
+];
+
+const clientOrigins = Array.from(
+  new Set(
+    [
+      ...defaultClientOrigins,
+      ...(process.env.CLIENT_URLS || "")
+        .split(",")
+        .map(normalizeOrigin)
+        .filter(Boolean),
+    ].map(normalizeOrigin).filter(Boolean)
+  )
+);
 
 app.use(
   cors({
-    origin: clientOrigins,
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      const normalizedRequestOrigin = normalizeOrigin(origin);
+      if (clientOrigins.includes(normalizedRequestOrigin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
   })
 );
 app.use(express.json({ limit: "5mb" }));
@@ -95,9 +125,6 @@ async function run() {
     const quizCollection = db.collection("quizzes");
     const attendanceCollection = db.collection("attendance");
     const usersCollection = db.collection("users");
-
-    await usersCollection.createIndex({ uid: 1 }, { unique: true });
-    await usersCollection.createIndex({ email: 1 }, { unique: true });
 
     const findUserFromToken = async (decoded) => {
       return usersCollection.findOne({
@@ -591,6 +618,8 @@ async function run() {
       }
     );
 
+    await usersCollection.createIndex({ uid: 1 }, { unique: true });
+    await usersCollection.createIndex({ email: 1 }, { unique: true });
     await mongoClient.db("admin").command({ ping: 1 });
     console.log("MongoDB connected successfully.");
   } finally {
@@ -604,6 +633,10 @@ app.get("/", (req, res) => {
   res.send("home route is running");
 });
 
-app.listen(port, () => {
-  console.log(`server is running at the port ${port}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`server is running at the port ${port}`);
+  });
+}
+
+module.exports = app;
