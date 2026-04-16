@@ -19,6 +19,7 @@ import ManageQuizzes from "../pages/Admin/ManageQuizzes";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
 import Profile from "../pages/Auth/Profile";
+import AttendanceHistory from "../pages/AttendanceHistory/AttendanceHistory";
 
 export const routers = createBrowserRouter([
   {
@@ -74,6 +75,14 @@ export const routers = createBrowserRouter([
         element: (
           <PrivateRoute>
             <Profile />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/attendance-history",
+        element: (
+          <PrivateRoute>
+            <AttendanceHistory />
           </PrivateRoute>
         ),
       },

@@ -1,159 +1,207 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import useAuth from "../../hooks/useAuth";
+import { getPrimaryNavigation } from "./navigation";
+import CompanyDetails from "./CompanyDetails";
+import { getErrorMessage, showErrorAlert, showSuccessAlert } from "../../utils/alerts";
 
-const Navbar = () => {
-  const location = useLocation();
-  const pathname = location.pathname;
-  const { user, dbUser, logoutUser } = useAuth();
+const getSectionContent = (pathname) => {
+  if (pathname === "/") {
+    return {
+      kicker: "Home",
+      eyebrow: "Daily Quiz Practice",
+      title: "Build momentum with focused learning.",
+    };
+  }
 
-  const dynamicTitle = pathname
-    .substring(1)
+  if (pathname === "/nine-ten") {
+    return {
+      kicker: "School Level",
+      eyebrow: "Class Track",
+      title: "Nine - Ten",
+    };
+  }
+
+  if (pathname === "/eleven-twelve") {
+    return {
+      kicker: "College Level",
+      eyebrow: "Class Track",
+      title: "Eleven - Twelve",
+    };
+  }
+
+  if (pathname.startsWith("/quiz/")) {
+    return {
+      kicker: "Quiz Session",
+      eyebrow: "Live Practice",
+      title: "Answer, review, and continue.",
+    };
+  }
+
+  if (pathname.startsWith("/admin")) {
+    return {
+      kicker: "Admin Panel",
+      eyebrow: "Management Workspace",
+      title: "Control quizzes and users.",
+    };
+  }
+
+  if (pathname === "/profile") {
+    return {
+      kicker: "Profile",
+      eyebrow: "Account Center",
+      title: "Keep your details updated.",
+    };
+  }
+
+  if (pathname === "/login") {
+    return {
+      kicker: "Account",
+      eyebrow: "Welcome Back",
+      title: "Sign in and continue learning.",
+    };
+  }
+
+  if (pathname === "/register") {
+    return {
+      kicker: "Account",
+      eyebrow: "New Learner",
+      title: "Create your account.",
+    };
+  }
+
+  const fallbackTitle = pathname
+    .replace(/^\//, "")
     .split("-")
     .filter(Boolean)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
+  return {
+    kicker: "Section",
+    eyebrow: "Current View",
+    title: fallbackTitle || "Shah Academy",
+  };
+};
+
+const Navbar = ({ onMenuOpen }) => {
+  const { pathname } = useLocation();
+  const { user, dbUser, logoutUser } = useAuth();
+  const navItems = getPrimaryNavigation(user, dbUser);
+  const section = getSectionContent(pathname);
+  const isHomePage = pathname === "/";
+  const useInlineScrollableHeader =
+    pathname === "/nine-ten" ||
+    pathname === "/eleven-twelve" ||
+    pathname.startsWith("/nine-ten-") ||
+    pathname.startsWith("/eleven-twelve-") ||
+    pathname === "/profile" ||
+    pathname.startsWith("/quiz/") ||
+    pathname.startsWith("/admin");
+  const logoSrc = "/logo/logo.png";
+
   const handleLogout = async () => {
     try {
       await logoutUser();
+      await showSuccessAlert("Logged Out", "You have signed out.");
     } catch (error) {
-      alert(error.message);
+      await showErrorAlert("Logout Failed", getErrorMessage(error));
     }
   };
 
   return (
-    <motion.div
-      className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-[linear-gradient(135deg,#16353d_0%,#225564_34%,#c65d3b_100%)] p-5 shadow-[0_24px_80px_rgba(15,23,42,0.24)]"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+    <motion.header
+      className="relative bg-white px-4 py-3 text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.08)] sm:px-5 md:px-6 lg:px-8"
+      initial={{ opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.2),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(243,182,76,0.3),transparent_28%)]" />
+      <div className="relative">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={onMenuOpen}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 transition duration-200 hover:bg-slate-100 active:scale-95 md:hidden"
+              aria-label="Open menu"
+            >
+              <HiOutlineMenuAlt2 className="text-[1.45rem]" />
+            </button>
 
-      <div className="relative flex min-h-[15rem] flex-col justify-between gap-8 md:min-h-[16rem]">
-        <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-          <motion.div
-            initial={{ y: -30 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-2xl"
-          >
-            <span className="inline-flex rounded-full border border-white/30 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80">
-              Smart Practice Platform
-            </span>
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white md:text-5xl">
-              <Link to="/">Shah Academy Quiz Hub</Link>
-            </h1>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-white/80 md:text-base">
-              Practice by class, move subject by subject, and keep your learning flow
-              sharp with a cleaner, faster quiz experience.
-            </p>
-          </motion.div>
-
-          <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-white">
             <Link
               to="/"
-              className="rounded-full border border-white/20 bg-white/10 px-4 py-2 transition hover:bg-white/20"
+              className="hidden h-12 w-[200px] shrink-0 overflow-hidden transition hover:opacity-90 md:block lg:h-14 lg:w-[240px]"
+              aria-label="Shah Academy home"
             >
-              Home
+              <img
+                src={logoSrc}
+                alt="Shah Academy"
+                className="h-full w-full object-cover object-center"
+              />
             </Link>
-            {user ? (
-              <>
-                <Link
-                  to="/profile"
-                  className="rounded-full border border-white/20 bg-white/10 px-4 py-2 transition hover:bg-white/20"
-                >
-                  Profile
-                </Link>
-                {dbUser?.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    className="rounded-full border border-white/20 bg-white/10 px-4 py-2 transition hover:bg-white/20"
-                  >
-                    Admin
-                  </Link>
-                )}
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-full border border-white/20 bg-white/10 px-4 py-2 transition hover:bg-white/20"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="rounded-full border border-white/20 bg-white/10 px-4 py-2 transition hover:bg-white/20"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="rounded-full bg-white px-4 py-2 text-slate-900 transition hover:bg-orange-50"
-                >
-                  Register
-                </Link>
-              </>
-            )}
           </div>
-        </div>
 
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <motion.div
-            className="relative max-w-md rounded-[1.75rem] border border-white/20 bg-white/12 px-5 py-4 backdrop-blur"
-            initial={{ y: 0, x: 0 }}
-            animate={{
-              y: dynamicTitle ? "8%" : "0%",
-              x: dynamicTitle ? "4%" : "0%",
-            }}
-            transition={{ duration: 0.5 }}
-          >
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/65">
-              Current Section
-            </p>
-            <p className="mt-2 text-2xl font-bold text-white">
-              {dynamicTitle || "Welcome"}
-            </p>
-          </motion.div>
+          <div className="ml-auto text-right md:hidden">
+            <Link
+              to="/"
+              className="block h-11 w-[170px] overflow-hidden transition hover:opacity-90"
+              aria-label="Shah Academy home"
+            >
+              <img
+                src={logoSrc}
+                alt="Shah Academy"
+                className="h-full w-full object-cover object-center"
+              />
+            </Link>
+          </div>
 
-          <motion.div
-            className="flex items-center gap-4 self-start rounded-[1.75rem] border border-white/20 bg-white/12 px-4 py-3 backdrop-blur md:self-auto"
-            initial={{ x: "-50%" }}
-            animate={{ x: dynamicTitle ? "-10%" : "0%" }}
-            transition={{ duration: 0.5 }}
-          >
-            <div
-              className="h-16 w-16 rounded-full border-[4px] border-white bg-cover bg-center shadow-xl md:h-20 md:w-20"
-              style={{
-                backgroundImage: `url("https://cdn-icons-png.flaticon.com/512/146/146031.png")`,
-              }}
-            ></div>
+          <nav className="hidden md:flex md:flex-wrap md:items-center md:justify-end md:gap-2">
+            {navItems.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-indigo-50 text-[var(--primary)]"
+                      : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+
             {user && (
-              <div className="text-white">
-                <p className="text-sm font-bold">
-                  {dbUser?.name || user.displayName || user.email}
-                </p>
-                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/75">
-                  {dbUser?.role || "user"} | {dbUser?.status || "active"}
-                </p>
-              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-100"
+              >
+                Logout
+              </button>
             )}
-            {!user && (
-              <div className="text-white">
-                <p className="text-sm font-bold">Guest Mode</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/75">
-                  Login to save quiz progress
-                </p>
-              </div>
-            )}
-          </motion.div>
+          </nav>
         </div>
+
+        {!isHomePage && !useInlineScrollableHeader && (
+          <div
+            className="mt-5 grid gap-4 border-t border-slate-200 pt-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end"
+          >
+            <div>
+              <p className="text-sm font-semibold text-slate-500">{section.eyebrow}</p>
+              <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+                {section.title}
+              </h1>
+            </div>
+
+            <CompanyDetails compact tone="light" />
+          </div>
+        )}
       </div>
-    </motion.div>
+    </motion.header>
   );
 };
 

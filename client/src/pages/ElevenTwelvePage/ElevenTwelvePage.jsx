@@ -1,6 +1,7 @@
 import React from "react";
 import PageNavigateBtn from "../../components/shared/PageNavigateBtn";
 import { motion } from "framer-motion";
+import CompanyDetails from "../../components/shared/CompanyDetails";
 
 const ElevenTwelvePage = () => {
   const containerVariants = {
@@ -25,35 +26,38 @@ const ElevenTwelvePage = () => {
       variants={containerVariants}
       initial="initial"
       animate="animate"
-      className="space-y-8"
+      className="space-y-6"
     >
-      <div className="page-header">
-        <span className="page-kicker">Eleven - Twelve</span>
-        <h2 className="page-title">Push for sharper results with higher-level practice.</h2>
-        <p className="page-subtitle">
-          Step into tougher subject sets designed for confidence, recall, and exam
-          readiness.
-        </p>
-      </div>
+      <section className="overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,var(--primary),var(--primary-light)_58%,var(--primary-dark))] px-5 py-6 text-white shadow-[0_18px_36px_rgba(67,56,202,0.22)] sm:px-6">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+          <div className="page-header max-w-2xl">
+            <span className="inline-flex rounded-full bg-white/14 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+              College Level
+            </span>
+            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+              Eleven - Twelve
+            </h1>
+          </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+          <CompanyDetails compact tone="dark" />
+        </div>
+      </section>
+
+      <div className="grid gap-4 md:grid-cols-3">
         <PageNavigateBtn
           address="/eleven-twelve-physics"
           name="Physics"
           tag="Subject"
-          subtitle="Advanced problem-solving and concept reinforcement."
         />
         <PageNavigateBtn
           address="/eleven-twelve-chemistry"
           name="Chemistry"
           tag="Subject"
-          subtitle="Practice reactions, structure, and deeper chapter coverage."
         />
         <PageNavigateBtn
           address="/eleven-twelve-math"
           name="Math"
           tag="Subject"
-          subtitle="Refine advanced techniques with cleaner, harder sets."
         />
       </div>
     </motion.div>

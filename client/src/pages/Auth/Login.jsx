@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import {
+  getErrorMessage,
+  showErrorAlert,
+  showSuccessAlert,
+} from "../../utils/alerts";
 
 const resolveRedirectPath = (profile, fallbackPath) => {
   if (profile?.role === "admin") {
     return "/admin";
   }
 
-  if (!profile?.className) {
+  if (!profile?.name || !profile?.className) {
     return "/profile";
   }
 
@@ -16,7 +21,6 @@ const resolveRedirectPath = (profile, fallbackPath) => {
 
 const Login = () => {
   const { loginUser, signInWithGoogle } = useAuth();
-  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
@@ -28,33 +32,43 @@ const Login = () => {
     const password = form.password.value;
 
     try {
-      setErrorMessage("");
       const { profile } = await loginUser(email, password);
-      navigate(resolveRedirectPath(profile, from), { replace: true });
+      const nextPath = resolveRedirectPath(profile, from);
+      await showSuccessAlert("Login Successful", "You are signed in.");
+      navigate(nextPath, {
+        replace: true,
+        state:
+          nextPath === "/profile"
+            ? { showCompleteProfile: true }
+            : undefined,
+      });
     } catch (error) {
-      setErrorMessage(error.message);
+      await showErrorAlert("Login Failed", getErrorMessage(error));
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      setErrorMessage("");
       const { profile } = await signInWithGoogle();
-      navigate(resolveRedirectPath(profile, from), { replace: true });
+      const nextPath = resolveRedirectPath(profile, from);
+      await showSuccessAlert("Login Successful", "Google account connected.");
+      navigate(nextPath, {
+        replace: true,
+        state:
+          nextPath === "/profile"
+            ? { showCompleteProfile: true }
+            : undefined,
+      });
     } catch (error) {
-      setErrorMessage(error.message);
+      await showErrorAlert("Login Failed", getErrorMessage(error));
     }
   };
 
   return (
-    <div className="surface-card mx-auto max-w-2xl p-8 md:p-10">
+    <div className="surface-card mx-auto max-w-2xl p-6 md:p-8">
       <div className="page-header max-w-xl">
         <span className="page-kicker">Welcome Back</span>
-        <h1 className="page-title">Login and continue your quiz journey.</h1>
-        <p className="page-subtitle">
-          Access your profile, saved role, class-based access, and quiz participation
-          from one place.
-        </p>
+        <h1 className="page-title">Login</h1>
       </div>
       <form onSubmit={handleEmailLogin} className="mt-6 space-y-4">
         <input
@@ -71,9 +85,7 @@ const Login = () => {
           className="input-field"
           required
         />
-        <button className="btn-primary w-full">
-          Login
-        </button>
+        <button className="btn-primary w-full">Login</button>
       </form>
       <button
         type="button"
@@ -82,14 +94,9 @@ const Login = () => {
       >
         Continue with Google
       </button>
-      {errorMessage && (
-        <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {errorMessage}
-        </p>
-      )}
       <p className="mt-6 text-center text-sm text-slate-600">
         New here?{" "}
-        <Link to="/register" className="font-bold text-orange-700">
+        <Link to="/register" className="font-bold text-[var(--primary)]">
           Register
         </Link>
       </p>

@@ -17,7 +17,7 @@ app.use(
     origin: clientOrigins,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 
 const adminEmails = (process.env.ADMIN_EMAILS || "")
   .split(",")
@@ -294,7 +294,7 @@ async function run() {
         role,
         status,
         provider,
-        photoURL: photoURL || req.decoded.picture || existingUser?.photoURL || "",
+        photoURL: existingUser?.photoURL || photoURL || req.decoded.picture || "",
         updatedAt: now,
       };
 
@@ -334,6 +334,10 @@ async function run() {
         allowedUpdates.className = req.body.className.trim();
       }
 
+      if (typeof req.body.photoURL === "string") {
+        allowedUpdates.photoURL = req.body.photoURL.trim();
+      }
+
       allowedUpdates.updatedAt = new Date();
 
       await usersCollection.updateOne(
@@ -360,6 +364,29 @@ async function run() {
       verifyFirebaseToken,
       verifyAdmin,
       async (req, res) => {
+        const query = { _id: new ObjectId(req.params.id) };
+        const targetUser = await usersCollection.findOne(query);
+
+        if (!targetUser) {
+          return res.status(404).send({ message: "User not found." });
+        }
+
+        const isSelfEdit = targetUser.uid === req.decoded.uid;
+
+        if (isSelfEdit) {
+          const hasBlockedSelfUpdate =
+            (typeof req.body.name === "string" &&
+              req.body.name.trim() !== (targetUser.name || "").trim()) ||
+            req.body.role !== undefined ||
+            req.body.status !== undefined;
+
+          if (hasBlockedSelfUpdate) {
+            return res.status(400).send({
+              message: "You can only update your own class here.",
+            });
+          }
+        }
+
         const allowedRoles = ["admin", "user"];
         const allowedStatuses = ["active", "inactive"];
         const updates = {
@@ -374,18 +401,58 @@ async function run() {
           updates.className = req.body.className.trim();
         }
 
-        if (allowedRoles.includes(req.body.role)) {
+        if (!isSelfEdit && allowedRoles.includes(req.body.role)) {
           updates.role = req.body.role;
         }
 
-        if (allowedStatuses.includes(req.body.status)) {
+        if (!isSelfEdit && allowedStatuses.includes(req.body.status)) {
           updates.status = req.body.status;
         }
 
-        const query = { _id: new ObjectId(req.params.id) };
         await usersCollection.updateOne(query, { $set: updates });
         const updatedUser = await usersCollection.findOne(query);
         res.send(updatedUser);
+      }
+    );
+
+    app.delete(
+      "/users/:id",
+      verifyFirebaseToken,
+      verifyAdmin,
+      async (req, res) => {
+        const query = { _id: new ObjectId(req.params.id) };
+        const userToDelete = await usersCollection.findOne(query);
+
+        if (!userToDelete) {
+          return res.status(404).send({ message: "User not found." });
+        }
+
+        if (userToDelete.uid === req.decoded.uid) {
+          return res
+            .status(400)
+            .send({ message: "You cannot delete your own account here." });
+        }
+
+        await attendanceCollection.deleteMany({
+          $or: [
+            { attended_by: userToDelete.email?.toLowerCase() },
+            { user_uid: userToDelete.uid },
+          ],
+        });
+
+        await usersCollection.deleteOne(query);
+
+        if (isFirebaseConfigured && userToDelete.uid) {
+          try {
+            await admin.auth().deleteUser(userToDelete.uid);
+          } catch (error) {
+            if (error.code !== "auth/user-not-found") {
+              throw error;
+            }
+          }
+        }
+
+        res.send({ message: "User deleted successfully." });
       }
     );
 
@@ -436,6 +503,63 @@ async function run() {
         const result = await attendanceCollection.findOne({
           attended_by: email,
           quiz_id: quizId,
+        });
+
+        res.send(result);
+      }
+    );
+
+    app.get(
+      "/attendance/me",
+      verifyFirebaseToken,
+      verifyActiveUser,
+      async (req, res) => {
+        const email = req.decoded.email?.toLowerCase();
+
+        const attendanceList = await attendanceCollection
+          .find({ attended_by: email })
+          .sort({ submittedAt: -1 })
+          .toArray();
+
+        const quizIds = attendanceList
+          .map((attendance) => attendance.quiz_id)
+          .filter((quizId) => ObjectId.isValid(quizId))
+          .map((quizId) => new ObjectId(quizId));
+
+        const quizzes = quizIds.length
+          ? await quizCollection.find({ _id: { $in: quizIds } }).toArray()
+          : [];
+
+        const quizMap = new Map(
+          quizzes.map((quiz) => [quiz._id.toString(), quiz])
+        );
+
+        const result = attendanceList.map((attendance) => {
+          const matchedQuiz = quizMap.get(attendance.quiz_id);
+          const correctCount = Array.isArray(attendance.answers)
+            ? attendance.answers.reduce(
+                (count, answer) => count + (answer.result ? 1 : 0),
+                0
+              )
+            : 0;
+
+          return {
+            ...attendance,
+            correctCount,
+            totalQuestions: Array.isArray(attendance.answers)
+              ? attendance.answers.length
+              : 0,
+            quiz: matchedQuiz
+              ? {
+                  _id: matchedQuiz._id,
+                  title: matchedQuiz.title || matchedQuiz.chapter_name || "Untitled Quiz",
+                  classIs: matchedQuiz.classIs,
+                  subject: matchedQuiz.subject,
+                  chapter: matchedQuiz.chapter,
+                  chapter_name: matchedQuiz.chapter_name,
+                }
+              : null,
+          };
         });
 
         res.send(result);

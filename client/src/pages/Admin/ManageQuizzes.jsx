@@ -3,10 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import Loading from "../../components/shared/Loading";
 import EditQuizModal from "../../components/shared/EditQuizModal";
+import {
+  getErrorMessage,
+  showConfirmAlert,
+  showErrorAlert,
+  showSuccessAlert,
+} from "../../utils/alerts";
 
 const ManageQuizzes = () => {
   const axiosSecure = useAxiosSecure();
-  const [message, setMessage] = useState("");
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -23,31 +28,31 @@ const ManageQuizzes = () => {
   });
 
   const handleDelete = async (quizId) => {
-    const confirmed = window.confirm(
-      "Delete this quiz? This will also remove its attendance records."
-    );
+    const result = await showConfirmAlert({
+      title: "Delete Quiz?",
+      text: "This will also remove its attendance records.",
+      confirmButtonText: "Delete",
+    });
 
-    if (!confirmed) {
+    if (!result.isConfirmed) {
       return;
     }
 
     try {
       await axiosSecure.delete(`/quizzes/${quizId}`);
-      setMessage("Quiz deleted successfully.");
+      await showSuccessAlert("Quiz Deleted", "The quiz was removed.");
       refetch();
     } catch (error) {
-      setMessage(error.response?.data?.message || error.message);
+      await showErrorAlert("Delete Failed", getErrorMessage(error));
     }
   };
 
   const handleOpenEdit = (quiz) => {
     setSelectedQuiz(quiz);
     setIsEditModalOpen(true);
-    setMessage("");
   };
 
-  const handleSaved = (nextMessage) => {
-    setMessage(nextMessage);
+  const handleSaved = () => {
     refetch();
   };
 
@@ -59,19 +64,8 @@ const ManageQuizzes = () => {
     <div className="space-y-5">
       <div className="page-header max-w-3xl">
         <span className="page-kicker">Admin Control</span>
-        <h1 className="page-title">Manage quizzes with edit and delete actions.</h1>
-        <p className="page-subtitle">
-          Review every quiz, update its details and questions, or remove it entirely
-          when needed.
-        </p>
+        <h1 className="page-title">Manage Quizzes</h1>
       </div>
-
-      {message && (
-        <p className="rounded-2xl border border-slate-200 bg-slate-50 p-3 font-semibold">
-          {message}
-        </p>
-      )}
-
       <div className="grid gap-5">
         {quizzes.map((quiz) => (
           <div key={quiz._id} className="surface-card-soft p-5">

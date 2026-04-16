@@ -126,21 +126,33 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateUserProfileData = async ({ name, className }) => {
+  const updateUserProfileData = async ({ name, className, photoURL }) => {
     if (!auth.currentUser) {
       return null;
     }
 
     setLoading(true);
     try {
+      const profileUpdates = {};
       if (name) {
-        await updateProfile(auth.currentUser, { displayName: name });
+        profileUpdates.displayName = name;
+      }
+      if (
+        typeof photoURL === "string" &&
+        photoURL.trim() &&
+        /^https?:\/\//i.test(photoURL.trim())
+      ) {
+        profileUpdates.photoURL = photoURL.trim();
+      }
+
+      if (Object.keys(profileUpdates).length) {
+        await updateProfile(auth.currentUser, profileUpdates);
       }
 
       const headers = await getAuthorizationHeader(auth.currentUser);
       const response = await axios.patch(
         `${apiBaseUrl}/users/me`,
-        { name, className },
+        { name, className, photoURL },
         { headers }
       );
 

@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import useAuth from "../../hooks/useAuth";
+import {
+  getErrorMessage,
+  showErrorAlert,
+  showSuccessAlert,
+} from "../../utils/alerts";
 
 const Register = () => {
   const { createUser, signInWithGoogle } = useAuth();
-  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleRegister = async (event) => {
     event.preventDefault();
@@ -14,35 +21,52 @@ const Register = () => {
     const className = form.className.value;
     const email = form.email.value;
     const password = form.password.value;
+    const confirmPassword = form.confirmPassword.value;
+
+    if (password !== confirmPassword) {
+      await showErrorAlert(
+        "Registration Failed",
+        "Password and confirm password must match."
+      );
+      return;
+    }
 
     try {
-      setErrorMessage("");
-      const { profile } = await createUser({ name, className, email, password });
-      navigate(profile?.role === "admin" ? "/admin" : "/", { replace: true });
+      await createUser({ name, className, email, password });
+      await showSuccessAlert(
+        "Registration Successful",
+        "Please complete your profile."
+      );
+      navigate("/profile", {
+        replace: true,
+        state: { showCompleteProfile: true },
+      });
     } catch (error) {
-      setErrorMessage(error.message);
+      await showErrorAlert("Registration Failed", getErrorMessage(error));
     }
   };
 
   const handleGoogleRegister = async () => {
     try {
-      setErrorMessage("");
       await signInWithGoogle();
-      navigate("/profile", { replace: true });
+      await showSuccessAlert(
+        "Registration Successful",
+        "Please complete your profile."
+      );
+      navigate("/profile", {
+        replace: true,
+        state: { showCompleteProfile: true },
+      });
     } catch (error) {
-      setErrorMessage(error.message);
+      await showErrorAlert("Registration Failed", getErrorMessage(error));
     }
   };
 
   return (
-    <div className="surface-card mx-auto max-w-2xl p-8 md:p-10">
+    <div className="surface-card mx-auto max-w-2xl p-6 md:p-8">
       <div className="page-header max-w-xl">
         <span className="page-kicker">Create Account</span>
-        <h1 className="page-title">Join Shah Academy Quiz Hub.</h1>
-        <p className="page-subtitle">
-          Register once, choose your class, and unlock a cleaner quiz workflow with
-          Google or email login.
-        </p>
+        <h1 className="page-title">Register</h1>
       </div>
       <form onSubmit={handleRegister} className="mt-6 space-y-4">
         <input
@@ -71,17 +95,53 @@ const Register = () => {
           className="input-field"
           required
         />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="input-field"
-          required
-          minLength={6}
-        />
-        <button className="btn-primary w-full">
-          Register
-        </button>
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            className="input-field pr-12"
+            required
+            minLength={6}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((current) => !current)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-700"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <HiOutlineEyeOff className="text-xl" />
+            ) : (
+              <HiOutlineEye className="text-xl" />
+            )}
+          </button>
+        </div>
+        <div className="relative">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
+            placeholder="Confirm password"
+            className="input-field pr-12"
+            required
+            minLength={6}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword((current) => !current)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-700"
+            aria-label={
+              showConfirmPassword ? "Hide confirm password" : "Show confirm password"
+            }
+          >
+            {showConfirmPassword ? (
+              <HiOutlineEyeOff className="text-xl" />
+            ) : (
+              <HiOutlineEye className="text-xl" />
+            )}
+          </button>
+        </div>
+        <button className="btn-primary w-full">Register</button>
       </form>
       <button
         type="button"
@@ -90,14 +150,9 @@ const Register = () => {
       >
         Register with Google
       </button>
-      {errorMessage && (
-        <p className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {errorMessage}
-        </p>
-      )}
       <p className="mt-6 text-center text-sm text-slate-600">
         Already registered?{" "}
-        <Link to="/login" className="font-bold text-orange-700">
+        <Link to="/login" className="font-bold text-[var(--primary)]">
           Login
         </Link>
       </p>

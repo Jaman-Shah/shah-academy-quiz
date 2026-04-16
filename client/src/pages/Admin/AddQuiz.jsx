@@ -1,35 +1,76 @@
 import React, { useState } from "react";
 import AddQuestionModal from "../../components/shared/AddQuestionModal";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import {
+  getErrorMessage,
+  showErrorAlert,
+  showSuccessAlert,
+} from "../../utils/alerts";
 
 const AddQuiz = () => {
   const axiosSecure = useAxiosSecure();
   const [quizzes, setQuizzes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [formState, setFormState] = useState({
+    classIs: "",
+    subject: "",
+    paper: 1,
+    chapter_name: "",
+    chapter: "",
+  });
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormState((currentState) => ({
+      ...currentState,
+      [name]: value,
+    }));
+  };
+
+  const handleImportMetadata = (metadata) => {
+    setFormState((currentState) => ({
+      classIs: metadata.classIs || currentState.classIs,
+      subject: metadata.subject || currentState.subject,
+      paper: metadata.paper || currentState.paper,
+      chapter_name: metadata.chapter_name || currentState.chapter_name,
+      chapter:
+        metadata.chapter === "" || metadata.chapter === undefined
+          ? currentState.chapter
+          : metadata.chapter,
+    }));
+  };
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
     if (quizzes.length < 3) {
-      return alert("Insert at least 3 questions");
+      await showErrorAlert(
+        "Quiz Not Ready",
+        "Insert at least 3 questions."
+      );
+      return;
     }
 
-    const form = event.target;
-    const classIs = form.classIs.value;
-    const subject = form.subject.value;
-    const paper = ` ${Number(form.paper.value) === 1 ? "1st" : "2nd"}`;
-    const chapter_name = form.chapter_name.value;
-    const chapter = parseInt(form.chapter.value);
+    const classIs = formState.classIs;
+    const subject = formState.subject;
+    const paper = ` ${Number(formState.paper) === 1 ? "1st" : "2nd"}`;
+    const chapter_name = formState.chapter_name;
+    const chapter = parseInt(formState.chapter, 10);
     const quiz = { classIs, subject, paper, chapter_name, chapter, quizzes };
 
     try {
       await axiosSecure.post(`/quizzes`, quiz);
-      setMessage("Quiz added successfully.");
+      await showSuccessAlert("Quiz Added", "The quiz was created.");
       setQuizzes([]);
-      form.reset();
+      setFormState({
+        classIs: "",
+        subject: "",
+        paper: 1,
+        chapter_name: "",
+        chapter: "",
+      });
     } catch (error) {
-      setMessage(error.response?.data?.message || error.message);
+      await showErrorAlert("Quiz Add Failed", getErrorMessage(error));
     }
   };
 
@@ -39,23 +80,13 @@ const AddQuiz = () => {
 
   return (
     <div className="mx-auto max-w-5xl">
-      {message && (
-        <p className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center font-semibold">
-          {message}
-        </p>
-      )}
-
       <form
         onSubmit={handleFormSubmit}
         className="surface-card p-6 md:p-8"
       >
         <div className="page-header max-w-3xl">
           <span className="page-kicker">Admin Studio</span>
-          <h1 className="page-title">Craft a new quiz set.</h1>
-          <p className="page-subtitle">
-            Build chapter-wise assessments with a stronger layout and clearer control
-            over your question stack.
-          </p>
+          <h1 className="page-title">Add Quiz</h1>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -67,7 +98,8 @@ const AddQuiz = () => {
               id="classIs"
               name="classIs"
               className="input-field"
-              defaultValue=""
+              value={formState.classIs}
+              onChange={handleChange}
               required
             >
               <option value="" disabled>
@@ -86,7 +118,8 @@ const AddQuiz = () => {
               id="subject"
               name="subject"
               className="input-field"
-              defaultValue=""
+              value={formState.subject}
+              onChange={handleChange}
               required
             >
               <option value="" disabled>
@@ -108,6 +141,8 @@ const AddQuiz = () => {
               name="paper"
               placeholder="Paper"
               className="input-field"
+              value={formState.paper}
+              onChange={handleChange}
               required
             />
           </div>
@@ -122,6 +157,8 @@ const AddQuiz = () => {
               name="chapter_name"
               placeholder="Chapter Name"
               className="input-field"
+              value={formState.chapter_name}
+              onChange={handleChange}
               required
             />
           </div>
@@ -136,6 +173,8 @@ const AddQuiz = () => {
               name="chapter"
               placeholder="Chapter"
               className="input-field"
+              value={formState.chapter}
+              onChange={handleChange}
               required
             />
           </div>
@@ -168,6 +207,7 @@ const AddQuiz = () => {
         setIsModalOpen={setIsModalOpen}
         quizzes={quizzes}
         setQuizzes={setQuizzes}
+        onImportMetadata={handleImportMetadata}
       />
     </div>
   );

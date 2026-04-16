@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import AddQuestionModal from "./AddQuestionModal";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import {
+  getErrorMessage,
+  showErrorAlert,
+  showSuccessAlert,
+} from "../../utils/alerts";
 
 const EditQuizModal = ({ isOpen, setIsOpen, quizData, onSaved }) => {
   const axiosSecure = useAxiosSecure();
@@ -14,7 +19,6 @@ const EditQuizModal = ({ isOpen, setIsOpen, quizData, onSaved }) => {
   });
   const [quizzes, setQuizzes] = useState([]);
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (!quizData) {
@@ -29,7 +33,6 @@ const EditQuizModal = ({ isOpen, setIsOpen, quizData, onSaved }) => {
       chapter: quizData.chapter || "",
     });
     setQuizzes(Array.isArray(quizData.quizzes) ? quizData.quizzes : []);
-    setMessage("");
   }, [quizData]);
 
   const handleChange = (event) => {
@@ -40,11 +43,27 @@ const EditQuizModal = ({ isOpen, setIsOpen, quizData, onSaved }) => {
     }));
   };
 
+  const handleImportMetadata = (metadata) => {
+    setFormState((currentState) => ({
+      classIs: metadata.classIs || currentState.classIs,
+      subject: metadata.subject || currentState.subject,
+      paper: metadata.paper || currentState.paper,
+      chapter_name: metadata.chapter_name || currentState.chapter_name,
+      chapter:
+        metadata.chapter === "" || metadata.chapter === undefined
+          ? currentState.chapter
+          : metadata.chapter,
+    }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (quizzes.length < 3) {
-      setMessage("Add at least 3 questions before updating the quiz.");
+      await showErrorAlert(
+        "Quiz Not Ready",
+        "Add at least 3 questions before updating the quiz."
+      );
       return;
     }
 
@@ -59,11 +78,11 @@ const EditQuizModal = ({ isOpen, setIsOpen, quizData, onSaved }) => {
 
     try {
       await axiosSecure.patch(`/quizzes/${quizData._id}`, payload);
-      setMessage("Quiz updated successfully.");
+      await showSuccessAlert("Quiz Updated", "The quiz was updated.");
       onSaved?.("Quiz updated successfully.");
       setIsOpen(false);
     } catch (error) {
-      setMessage(error.response?.data?.message || error.message);
+      await showErrorAlert("Quiz Update Failed", getErrorMessage(error));
     }
   };
 
@@ -97,12 +116,6 @@ const EditQuizModal = ({ isOpen, setIsOpen, quizData, onSaved }) => {
                   Close
                 </button>
               </div>
-
-              {message && (
-                <p className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 font-semibold">
-                  {message}
-                </p>
-              )}
 
               <form onSubmit={handleSubmit} className="mt-6">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -230,6 +243,7 @@ const EditQuizModal = ({ isOpen, setIsOpen, quizData, onSaved }) => {
         setIsModalOpen={setIsQuestionModalOpen}
         quizzes={quizzes}
         setQuizzes={setQuizzes}
+        onImportMetadata={handleImportMetadata}
       />
     </>
   );

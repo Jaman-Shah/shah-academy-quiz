@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { HiOutlineArrowRight, HiOutlineClipboardList } from "react-icons/hi";
 
 const QuizNameCard = ({ quiz, index }) => {
   const {
@@ -10,32 +11,40 @@ const QuizNameCard = ({ quiz, index }) => {
     subject,
     paper,
     chapter,
+    quizzes,
   } = quiz;
   const displayTitle = title || chapterName || "Untitled Quiz";
+  const questionCount = Array.isArray(quizzes) ? quizzes.length : 0;
 
   return (
-    <div className="surface-card-soft overflow-hidden">
-      <Link to={`/quiz/${id}`} className="block p-6">
+    <div className="surface-card-soft overflow-hidden border border-slate-100">
+      <Link to={`/quiz/${id}`} className="block p-5">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <span className="info-chip">Quiz {index}</span>
-            <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">
-              {displayTitle}
-            </h1>
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-indigo-50 text-[1.45rem] text-indigo-700">
+              <HiOutlineClipboardList />
+            </div>
+            <div>
+              <span className="info-chip">Quiz {index}</span>
+              <h1 className="mt-3 text-xl font-extrabold tracking-tight text-slate-900 md:text-2xl">
+                {displayTitle}
+              </h1>
+            </div>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Ready
+
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+            <HiOutlineArrowRight className="text-xl" />
           </span>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-          <span className="rounded-full bg-orange-50 px-3 py-2 text-orange-700">
+        <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.16em]">
+          <span className="rounded-full bg-indigo-50 px-3 py-2 text-indigo-700">
             {classIs}
           </span>
-          <span className="rounded-full bg-teal-50 px-3 py-2 text-teal-700">
+          <span className="rounded-full bg-emerald-50 px-3 py-2 text-emerald-700">
             {subject}
           </span>
-          <span className="rounded-full bg-sky-50 px-3 py-2 text-sky-700">
+          <span className="rounded-full bg-amber-50 px-3 py-2 text-amber-700">
             {paper} paper
           </span>
           <span className="rounded-full bg-slate-100 px-3 py-2 text-slate-600">
@@ -43,10 +52,11 @@ const QuizNameCard = ({ quiz, index }) => {
           </span>
         </div>
 
-        <p className="mt-6 text-sm leading-7 text-slate-600">
-          Open this set to begin practice, track your answers, and review your final
-          score at the end.
-        </p>
+        <div className="mt-5 flex items-center justify-end rounded-[1.25rem] bg-slate-50 px-4 py-3">
+          <span className="shrink-0 text-sm font-bold text-indigo-700">
+            {questionCount || "?"} Q
+          </span>
+        </div>
       </Link>
     </div>
   );

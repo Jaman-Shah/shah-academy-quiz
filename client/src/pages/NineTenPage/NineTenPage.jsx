@@ -1,6 +1,7 @@
 import React from "react";
 import PageNavigateBtn from "../../components/shared/PageNavigateBtn";
 import { motion } from "framer-motion";
+import CompanyDetails from "../../components/shared/CompanyDetails";
 
 const NineTenPage = () => {
   const containerVariants = {
@@ -25,35 +26,38 @@ const NineTenPage = () => {
       variants={containerVariants}
       initial="initial"
       animate="animate"
-      className="space-y-8"
+      className="space-y-6"
     >
-      <div className="page-header">
-        <span className="page-kicker">Nine - Ten</span>
-        <h2 className="page-title">Build strong fundamentals, one subject at a time.</h2>
-        <p className="page-subtitle">
-          Choose a subject to unlock focused chapter-based quizzes and keep your
-          school preparation consistent.
-        </p>
-      </div>
+      <section className="overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,var(--primary),var(--primary-light)_58%,var(--primary-dark))] px-5 py-6 text-white shadow-[0_18px_36px_rgba(67,56,202,0.22)] sm:px-6">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+          <div className="page-header max-w-2xl">
+            <span className="inline-flex rounded-full bg-white/14 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+              School Level
+            </span>
+            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+              Nine - Ten
+            </h1>
+          </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+          <CompanyDetails compact tone="dark" />
+        </div>
+      </section>
+
+      <div className="grid gap-4 md:grid-cols-3">
         <PageNavigateBtn
           address="/nine-ten-physics"
           name="Physics"
           tag="Subject"
-          subtitle="Core concepts, formulas, and problem-solving practice."
         />
         <PageNavigateBtn
           address="/nine-ten-chemistry"
           name="Chemistry"
           tag="Subject"
-          subtitle="Chapter-wise MCQs for reactions, theory, and precision."
         />
         <PageNavigateBtn
           address="/nine-ten-math"
           name="Math"
           tag="Subject"
-          subtitle="Sharpen logic, speed, and accuracy with guided practice."
         />
       </div>
     </motion.div>
