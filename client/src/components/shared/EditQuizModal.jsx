@@ -104,7 +104,7 @@ const EditQuizModal = ({ isOpen, setIsOpen, quizData, onSaved }) => {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <span className="page-kicker">Manage Quiz</span>
-                  <h2 className="mt-4 text-3xl font-bold text-slate-900">
+                  <h2 className="mt-4 text-2xl font-bold text-slate-900 sm:text-3xl">
                     Edit quiz details and questions
                   </h2>
                 </div>

@@ -351,7 +351,7 @@ const AddQuestionModal = ({
                 <span className="page-kicker">
                   {editingQuestionNumber ? "Edit Question" : "Question Builder"}
                 </span>
-                <h2 className="mt-4 text-3xl font-bold text-slate-900">
+                <h2 className="mt-4 text-2xl font-bold text-slate-900 sm:text-3xl">
                   {editingQuestionNumber
                     ? `Update question ${editingQuestionNumber}`
                     : "Add questions to your quiz"}

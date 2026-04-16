@@ -13,7 +13,7 @@ const NineTenChemistry = () => {
             <span className="inline-flex rounded-full bg-white/14 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
               Nine - Ten Chemistry
             </span>
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+            <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-3xl md:text-4xl">
               Chemistry
             </h1>
           </div>

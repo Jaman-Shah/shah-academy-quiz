@@ -67,7 +67,7 @@ const PageNavigateBtn = ({
         </div>
 
         <div className="mt-5 min-w-0">
-          <p className="text-2xl font-extrabold tracking-tight text-slate-900">
+          <p className="text-lg font-extrabold tracking-tight text-slate-900 sm:text-2xl">
             {name}
           </p>
         </div>

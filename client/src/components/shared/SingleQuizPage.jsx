@@ -103,7 +103,7 @@ const SingleQuizPage = () => {
   if (dbUser?.status === "inactive") {
     return (
       <div className="mx-auto max-w-2xl rounded-[2rem] border border-rose-200 bg-rose-50 p-6 text-center">
-        <h1 className="text-2xl font-bold text-rose-700">Account Inactive</h1>
+        <h1 className="text-xl font-bold text-rose-700 sm:text-2xl">Account Inactive</h1>
         <p className="mt-2 text-slate-600">
           Your account is inactive. Contact an admin before attending quizzes.
         </p>
@@ -164,10 +164,10 @@ const SingleQuizPage = () => {
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50 text-3xl text-indigo-700">
             <HiOutlineSparkles />
           </div>
-          <h2 className="mt-4 text-2xl font-extrabold text-slate-900">
+          <h2 className="mt-4 text-xl font-extrabold text-slate-900 sm:text-2xl">
             Your Score
           </h2>
-          <div className="mx-auto mt-6 flex h-28 w-28 items-center justify-center rounded-full border-4 border-indigo-100 bg-[linear-gradient(135deg,var(--primary),var(--primary-light))] text-3xl font-extrabold text-white shadow-[0_14px_30px_rgba(67,56,202,0.2)]">
+          <div className="mx-auto mt-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-indigo-100 bg-[linear-gradient(135deg,var(--primary),var(--primary-light))] text-2xl font-extrabold text-white shadow-[0_14px_30px_rgba(67,56,202,0.2)] sm:h-28 sm:w-28 sm:text-3xl">
             {`${correctCount}/${totalQuestions}`}
           </div>
         </div>

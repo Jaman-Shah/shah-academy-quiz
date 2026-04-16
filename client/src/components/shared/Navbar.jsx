@@ -98,6 +98,8 @@ const Navbar = ({ onMenuOpen }) => {
     pathname.startsWith("/nine-ten-") ||
     pathname.startsWith("/eleven-twelve-") ||
     pathname === "/profile" ||
+    pathname === "/login" ||
+    pathname === "/register" ||
     pathname.startsWith("/quiz/") ||
     pathname.startsWith("/admin");
   const logoSrc = "/logo/logo.png";
